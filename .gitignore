@@ -1,0 +1,36 @@
+# Build directories
+build/
+build-*/
+bin/
+lib/
+out/
+CMakeUserPresets.json
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.vs/
+
+# Compiler and tool artifacts
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+*.pdb
+*.ilk
+*.dSYM/
+compile_commands.json
+.cache/
+
+# Test and benchmark logs/results
+*.log
+results/*.txt
+results/*.csv
+!examples/*.csv
