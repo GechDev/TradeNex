@@ -1,0 +1,90 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 20,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "Default (Release)",
+      "description": "Standard Release build configuration with Ninja generator",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "TRADENEX_BUILD_TESTS": "ON",
+        "TRADENEX_BUILD_BENCHMARKS": "ON",
+        "TRADENEX_BUILD_APPS": "ON"
+      }
+    },
+    {
+      "name": "debug",
+      "displayName": "Debug",
+      "description": "Debug build configuration with full assertions",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "TRADENEX_BUILD_TESTS": "ON",
+        "TRADENEX_BUILD_BENCHMARKS": "ON",
+        "TRADENEX_BUILD_APPS": "ON"
+      }
+    },
+    {
+      "name": "sanitizer",
+      "displayName": "Sanitizer (ASan + UBSan)",
+      "description": "Release build with AddressSanitizer and UndefinedBehaviorSanitizer",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-sanitizer",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "TRADENEX_SANITIZE": "ON",
+        "TRADENEX_BUILD_TESTS": "ON",
+        "TRADENEX_BUILD_BENCHMARKS": "OFF",
+        "TRADENEX_BUILD_APPS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default"
+    },
+    {
+      "name": "debug",
+      "configurePreset": "debug"
+    },
+    {
+      "name": "sanitizer",
+      "configurePreset": "sanitizer"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "sanitizer",
+      "configurePreset": "sanitizer",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}
