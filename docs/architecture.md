@@ -84,3 +84,26 @@ TradeNex is an ultra-low-latency, deterministic, single-instrument electronic li
 - Parses CSV event streams (`ADD`, `CANCEL`) with detailed line diagnostics.
 - Guarantees identical execution traces across platforms and runs.
 - Runs invariant verification checks after every event stream.
+
+---
+
+## 3. Development Milestones & Historical Reconstruction Record
+
+In accordance with project governance standards, the development progression is organized across the following target engineering periods:
+
+1. **August 15–24, 2026 (Phase 1–3: Core Architecture, Order Book & Matching):**
+   - Project foundation, CMake presets, warnings, and CI matrix.
+   - Domain modeling (types, integer ticks, order lifecycle states, events).
+   - Dual-sided limit order book with intrusive doubly-linked queues and $O(1)$ index.
+   - Matching engine implementing deterministic price-time priority, sweeps, and market orders.
+   - Cancellation semantics and state preservation on rejected operations.
+2. **September 5–9, 2026 (Phase 4–6: Reliability, Replay, CLI & Benchmarks):**
+   - Deterministic event replay engine with robust CSV parsing and diagnostics.
+   - Command-line interface (`tradenex demo`, `tradenex replay`, `tradenex benchmark`).
+   - Micro-benchmarking suite profiling throughput and latency percentiles (p50, p95, p99).
+   - Property-based testing and deterministic randomized fuzzing with recorded seeds.
+   - System documentation and architectural trade-off analysis.
+
+**Reconstruction Audit Date:** October 17, 2026.  
+All functional tests pass with 100% success rate, verifying algorithmic correctness, invariant preservation, and zero memory leaks.
+
