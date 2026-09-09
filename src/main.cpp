@@ -180,7 +180,8 @@ int run_quick_benchmark() {
     std::cout << "  Total Elapsed Time:            " << std::fixed << std::setprecision(3) << elapsed_sec * 1000.0 << " ms\n";
     std::cout << "  Throughput:                    " << std::fixed << std::setprecision(0) << throughput << " ops/sec ("
               << std::setprecision(2) << throughput / 1'000'000.0 << " Mops/sec)\n";
-    std::cout << "  Average Latency:               " << std::fixed << std::setprecision(2) << (elapsed_sec * 1e9 / summary.total_events) << " ns/op\n";
+    std::cout << "  Average Latency:               " << std::fixed << std::setprecision(2)
+              << (elapsed_sec * 1e9 / static_cast<double>(summary.total_events)) << " ns/op\n";
     std::cout << "  Trades Generated:              " << summary.trades_generated << "\n";
     std::cout << "  Volume Executed:               " << summary.total_volume_traded << "\n";
     std::cout << "  Invariants Check:              " << (summary.invariants_hold ? "PASSED" : "FAILED") << "\n";

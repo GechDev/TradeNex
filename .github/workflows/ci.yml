@@ -8,22 +8,28 @@ on:
 
 jobs:
   build-and-test:
-    name: ${{ matrix.os }} - ${{ matrix.compiler }} (${{ matrix.build_type }})
+    name: ${{ matrix.os }} - ${{ matrix.compiler }} (${{ matrix.build_type }})${{ matrix.sanitize == 'ON' && ' + sanitizers' || '' }}
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-22.04
-            compiler: gcc-12
+          - os: ubuntu-24.04
+            compiler: gcc
+            cxx: g++
             build_type: Release
             sanitize: OFF
-          - os: ubuntu-22.04
-            compiler: clang-16
+          - os: ubuntu-24.04
+            compiler: clang
+            cxx: clang++
             build_type: Release
             sanitize: ON
           - os: windows-latest
             compiler: msvc
+            cxx: ""
             build_type: Release
             sanitize: OFF
 
@@ -31,44 +37,43 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Linux dependencies
-        if: runner.os == 'Linux'
+      - name: Configure CMake
         run: |
-          sudo apt-get update
-          if [ "${{ matrix.compiler }}" = "gcc-12" ]; then
-            sudo apt-get install -y g++-12 ninja-build
-            echo "CC=gcc-12" >> $GITHUB_ENV
-            echo "CXX=g++-12" >> $GITHUB_ENV
-          elif [ "${{ matrix.compiler }}" = "clang-16" ]; then
-            sudo apt-get install -y clang-16 ninja-build
-            echo "CC=clang-16" >> $GITHUB_ENV
-            echo "CXX=clang++-16" >> $GITHUB_ENV
+          if [ -n "${{ matrix.cxx }}" ]; then
+            cmake -S . -B build \
+              -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} \
+              -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+              -DTRADENEX_SANITIZE=${{ matrix.sanitize }} \
+              -DTRADENEX_BUILD_TESTS=ON \
+              -DTRADENEX_BUILD_BENCHMARKS=ON \
+              -DTRADENEX_BUILD_APPS=ON
+          else
+            cmake -S . -B build \
+              -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+              -DTRADENEX_SANITIZE=${{ matrix.sanitize }} \
+              -DTRADENEX_BUILD_TESTS=ON \
+              -DTRADENEX_BUILD_BENCHMARKS=ON \
+              -DTRADENEX_BUILD_APPS=ON
           fi
 
-      - name: Set up Windows Ninja
-        if: runner.os == 'Windows'
-        run: choco install ninja
-
-      - name: Configure CMake
-        run: >
-          cmake -B build
-          -G Ninja
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DTRADENEX_SANITIZE=${{ matrix.sanitize }}
-          -DTRADENEX_BUILD_TESTS=ON
-          -DTRADENEX_BUILD_BENCHMARKS=ON
-          -DTRADENEX_BUILD_APPS=ON
-
       - name: Build
-        run: cmake --build build --config ${{ matrix.build_type }}
+        run: cmake --build build --config ${{ matrix.build_type }} -j
 
       - name: Run Tests
-        run: ctest --test-dir build --output-on-failure --config ${{ matrix.build_type }}
+        run: ctest --test-dir build --output-on-failure -C ${{ matrix.build_type }}
 
       - name: Run Demo Verification
         run: |
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            ./build/tradenex.exe demo
-          else
+          if [ -f "./build/tradenex" ]; then
             ./build/tradenex demo
+          elif [ -f "./build/tradenex.exe" ]; then
+            ./build/tradenex.exe demo
+          elif [ -f "./build/Release/tradenex.exe" ]; then
+            ./build/Release/tradenex.exe demo
+          elif [ -f "./build/Debug/tradenex.exe" ]; then
+            ./build/Debug/tradenex.exe demo
+          else
+            echo "Searching for tradenex binary..."
+            find build/ -name "tradenex*"
+            exit 1
           fi

@@ -42,24 +42,27 @@ else()
     endif()
 endif()
 
-add_library(tradenex
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR})
+
+add_library(tradenex_core
     src/order_book.cpp
     src/matching_engine.cpp
     src/simulator.cpp
 )
-add_library(tradenex::tradenex ALIAS tradenex)
+add_library(tradenex::tradenex ALIAS tradenex_core)
 
-target_include_directories(tradenex
+target_include_directories(tradenex_core
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(tradenex PUBLIC tradenex_warnings)
+target_link_libraries(tradenex_core PUBLIC tradenex_warnings)
 
 if(TRADENEX_BUILD_APPS)
-    add_executable(tradenex_cli src/main.cpp)
-    target_link_libraries(tradenex_cli PRIVATE tradenex)
-    set_target_properties(tradenex_cli PROPERTIES OUTPUT_NAME tradenex)
+    add_executable(tradenex src/main.cpp)
+    target_link_libraries(tradenex PRIVATE tradenex_core)
 endif()
 
 if(TRADENEX_BUILD_TESTS)
@@ -83,7 +86,7 @@ if(TRADENEX_BUILD_TESTS)
         tests/invariant_tests.cpp
         tests/replay_tests.cpp
     )
-    target_link_libraries(tradenex_tests PRIVATE tradenex)
+    target_link_libraries(tradenex_tests PRIVATE tradenex_core)
     target_include_directories(tradenex_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/tests)
 
     if(TRADENEX_USE_GTEST)
@@ -96,5 +99,5 @@ endif()
 
 if(TRADENEX_BUILD_BENCHMARKS)
     add_executable(tradenex_benchmark benchmarks/matching_benchmark.cpp)
-    target_link_libraries(tradenex_benchmark PRIVATE tradenex)
+    target_link_libraries(tradenex_benchmark PRIVATE tradenex_core)
 endif()
